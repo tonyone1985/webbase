@@ -1,0 +1,77 @@
+{{template "tphead" .}}
+
+		<section class="section">
+                	<ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">邮件管理</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">账号信息</li>
+                    </ol>
+
+		<div class="row">
+			<div class="col-lg-12 col-xl-6 col-md-12 col-sm-12">
+				<div class="card">
+					<div class="card-header">
+						<h4>General Elements</h4>
+					</div>
+					<div id="display" class="card-body">
+						
+							<div class="form-group row">
+								<label class="col-md-3 col-form-label">账号名</label>
+								<div class="col-md-9">
+									<label class="col-md-3 col-form-label">{{.user.Username }}</label>
+								</div>
+							</div>											
+							<div class="form-group row">
+								<label class="col-md-3 col-form-label">真实姓名</label>
+								<div class="col-md-9">
+									<label class="col-md-3 col-form-label">{{.user.Real_name }}</label>
+
+								</div>
+							</div>
+
+							<div class="form-group row mb-0">
+								<a href="javascript:$('#display').hide();$('#edit').show();" class="btn  btn-social btn-primary m-b-5"><i class="fa fa-github"></i>修改</a>
+								
+							</div>
+						
+					</div>
+					<div id="edit" style="display:none" class="card-body">
+						<form id="form1" method="POST" class="form-horizontal" action="/emaildetails" >
+							<input name="method" type="hidden" value="{{.method}}">
+							<div class="form-group row">
+								<label class="col-md-3 col-form-label">账号名</label>
+								<div class="col-md-9">
+									<label class="col-md-3 col-form-label">{{.user.Username }}</label>
+								</div>
+							</div>											
+							<div class="form-group row">
+								<label class="col-md-3 col-form-label">密码</label>
+								<div class="col-md-9">
+									<input id="password" type="password" class="form-control" value="">
+								</div>
+							</div>							
+
+							<div class="form-group row mb-0">
+								<a href="javascript:editmydetail();" class="btn  btn-social btn-primary m-b-5"><i class="fa fa-github"></i>保存</a>								   
+								<a  href="javascript:$('#edit').hide();$('#display').show();" class="btn  btn-social btn-primary m-b-5"><i class="fa fa-github"></i>取消</a>
+							</div>							
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>		
+
+	</section>
+{{template "tpscripts"}}
+	<script>
+		function editmydetail(){
+			$.post("/mydetails",{method:"resetpwd",username:"{{.user.Username }}",pwd:$('#password').val()},function(result){
+				alert(result.Msg);
+				if(result.Suss){
+					window.location.reload();
+				}
+			});
+		}
+		
+	</script>
+{{template "tpfoot"}}
+				

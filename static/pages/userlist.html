@@ -1,0 +1,201 @@
+{{template "tphead" .}}
+
+					<section class="section">
+                    	<ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#">邮件管理</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">账号</li>
+                        </ol>
+						
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card">
+									<div class="card-header">
+										<h4>账号列表</h4>
+									</div>
+									<div class="card-body">
+										<div class="table-responsive"><a data-toggle="modal" data-target="#adduser" onclick="showadduser();" href="#" class="btn  btn-social btn-primary m-b-5"><i class="fa fa-github"></i>添加账号</a>
+										<table id="example" class="table table-striped table-bordered border-t0 text-nowrap w-100" >
+											<thead>
+												<tr>
+													<th class="wd-15p">账号</th>
+													<th class="wd-15p">真实姓名</th>
+													<th class="wd-15p">修改信息</th>
+												</tr>
+											</thead>
+											<tbody>
+												
+												{{range $value := .users}}
+												<tr>
+													<td>{{$value.Username}}</td>
+													<td>{{$value.Real_name}}</td>
+													<td><a data-toggle="modal" data-target="#editinfo" onclick="showeditinfo('{{$value.Username}}','{{$value.Real_name}}');" href="#" >修改信息</a>
+														<a data-toggle="modal" data-target="#resetpwd" onclick="showresetpwd('{{$value.Username}}');" href="#" >重置密码</a>
+														</td>
+												</tr>
+												{{end}}
+											</tbody>
+										</table>
+
+									</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</section>
+
+					<div class="modal fade" id="editinfo" tabindex="-1" role="dialog"  aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="example-Modal3">修改信息</h5>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									<form>
+										<div class="form-group">
+											<label for="editinfo-username" class="form-control-label">用户名:</label>
+											
+											<label id="editinfo-username" class="form-control"></label>
+										</div>
+										<div class="form-group mb-0">
+											<label for="message-text" class="form-control-label">真实姓名:</label>
+											<input type="text" class="form-control" id="editinfo-realname">
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-success" data-dismiss="modal">取消</button>
+									<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="editinfo()" >保存</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal fade" id="resetpwd" tabindex="-1" role="dialog"  aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="example-Modal3">重置密码</h5>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									<form>
+										<div class="form-group">
+											<label for="resetpwd-username" class="form-control-label">用户名:</label>
+											
+											<label id="resetpwd-username" class="form-control"></label>
+										</div>
+										<div class="form-group mb-0">
+											<label for="resetpwd-pwd" class="form-control-label">密码:</label>
+											<input type="password" class="form-control" id="resetpwd-pwd">
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-success" data-dismiss="modal">取消</button>
+									<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="resetpwd()" >重置</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal fade" id="adduser" tabindex="-1" role="dialog"  aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="example-Modal3">添加用户</h5>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									<form>
+										<div class="form-group">
+											<label for="adduser-username" class="form-control-label">用户名:</label>											
+											<input type="text" class="form-control" id="adduser-username">
+										</div>
+										<div class="form-group mb-0">
+											<label for="adduser-realname" class="form-control-label">真实姓名:</label>											
+											<input type="text" class="form-control" id="adduser-realname">
+										</div>
+										<div class="form-group mb-0">
+											<label for="adduser-pwd" class="form-control-label">密码:</label>
+											<input type="password" class="form-control" id="adduser-pwd">
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-success" data-dismiss="modal">取消</button>
+									<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="adduser()" >添加</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+{{template "tpscripts" }}
+
+<!--DataTables js-->
+		<script src="assets/plugins/Datatable/js/jquery.dataTables.js"></script>
+		<script src="assets/plugins/Datatable/js/dataTables.bootstrap4.js"></script>
+
+		<script>
+				$(function(e) {
+						$('#example').DataTable();
+					});
+				
+				function showeditinfo(u,r){
+					$('#editinfo-username').html(u)
+					$('#editinfo-realname').val(r)
+				}
+				function showresetpwd(u){
+					$('#resetpwd-username').html(u)
+					$('#resetpwd-pwd').val('')
+				}
+				function showadduser(){
+					$('#adduser-username').val('')
+					$('#adduser-realname').val('')
+					$('#adduser-pwd').val('')
+				}
+			
+				function editinfo(){
+					var data = {method:"editinfo",
+								username:$('#editinfo-username').html(),
+								realname:$('#editinfo-realname').val()
+								};
+					$.post("/userlist",data,function(result){
+						alert(result.Msg);
+						if(result.Suss){
+							window.location.reload();
+						}
+					});
+				}
+				function resetpwd(){
+					var data = {method:"resetpwd",
+								username:$('#resetpwd-username').html(),
+								pwd:$('#resetpwd-pwd').val()
+								};
+					$.post("/userlist",data,function(result){
+						alert(result.Msg);						
+					});
+				}
+				function adduser(){
+					var data = {method:"adduser",
+								username:$('#adduser-username').val(),
+								realname:$('#adduser-realname').val(),
+								pwd:$('#adduser-pwd').val()
+								};
+					$.post("/userlist",data,function(result){
+						alert(result.Msg);
+						if(result.Suss){
+							window.location.reload();
+						}
+					});
+				}
+
+		</script>
+{{template "tpfoot" }}

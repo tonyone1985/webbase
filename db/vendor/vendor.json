@@ -1,0 +1,25 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "asksIwylfIjaYsF2nMY69jTyxC0=",
+			"path": "github.com/lib/pq",
+			"revision": "9eb73efc1fcc404148b56765b0d3f61d9a5ef8ee",
+			"revisionTime": "2018-10-16T16:26:27Z"
+		},
+		{
+			"checksumSHA1": "QPjV8nrnzjkHGgLYwlqYCOSbwH4=",
+			"path": "github.com/lib/pq/oid",
+			"revision": "9eb73efc1fcc404148b56765b0d3f61d9a5ef8ee",
+			"revisionTime": "2018-10-16T16:26:27Z"
+		},
+		{
+			"checksumSHA1": "irVtuV8PFUfqHh4RR+RS8YQu+Sc=",
+			"path": "simplesql",
+			"revision": "292cf8034d9b80f841cdd431d594034b95788c46",
+			"revisionTime": "2019-01-04T05:23:29Z"
+		}
+	],
+	"rootPath": "db"
+}
