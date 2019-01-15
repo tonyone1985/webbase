@@ -2,11 +2,7 @@
 	"comment": "",
 	"ignore": "test",
 	"package": [
-		{
-			"checksumSHA1": "ut/ZGUnVQeA/gO8v/OnJP2xln40=",
-			"path": "db",
-			"revision": ""
-		},
+		
 		{
 			"checksumSHA1": "FG2DkqrwE8opKUY+Yh2Akcw4QBo=",
 			"path": "github.com/boj/redistore",
@@ -159,12 +155,6 @@
 			"path": "gopkg.in/yaml.v2",
 			"revision": "d8fb18c33b1657271b6302e0899d033902012f49",
 			"revisionTime": "2018-12-31T01:02:53Z"
-		},
-		{
-			"checksumSHA1": "W1fId7Ci6LitlGHWpZjbOkDM00o=",
-			"path": "simplesql",
-			"revision": "6b045d6a0a6dedbbcd1ce0a9c335761fb5f59adc",
-			"revisionTime": "2019-01-11T09:16:15Z"
 		}
 	],
 	"rootPath": "webbase"

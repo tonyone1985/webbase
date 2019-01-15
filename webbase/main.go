@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"control"
 	"db"
 	"encoding/json"
 	"html/template"
@@ -20,7 +21,7 @@ import (
 )
 
 const cockey = "ljxu"
-const susrname = "user"
+
 const sauths = "auths"
 const STimeOut = 60 * 60
 
@@ -28,7 +29,7 @@ func GetAutus(c *gin.Context) []*db.AuthBean {
 	return c.Value(sauths).([]*db.AuthBean)
 }
 func GetCUser(c *gin.Context) *db.UserBean {
-	return c.Value(susrname).(*db.UserBean)
+	return c.Value(control.S_USER_KEY).(*db.UserBean)
 }
 func GetMenuHtml(c *gin.Context) template.HTML {
 	auths := GetAutus(c)
@@ -61,7 +62,9 @@ func plogin(c *gin.Context) {
 		})
 	} else if c.Request.Method == "POST" {
 
-		u := db.Login2(c, c.Request.FormValue("mail"), c.Request.FormValue("password"))
+		//control.Login(c, c.Request.FormValue("mail"), c.Request.FormValue("password"))
+		//u := db.Login2(c, c.Request.FormValue("mail"), c.Request.FormValue("password"))
+		u := control.Login(c, c.Request.FormValue("mail"), c.Request.FormValue("password"))
 		if u != nil {
 			ses := sessions.Default(c)
 			uid, _ := uuid.NewV4()
@@ -142,7 +145,7 @@ func islogin(c *gin.Context) bool {
 		if e != nil || v == nil {
 			return false
 		}
-		c.Set(susrname, v.Data())
+		c.Set(control.S_USER_KEY, v.Data())
 
 		initAuthMap(c)
 		u := v.Data().(*db.UserBean)
@@ -252,31 +255,58 @@ func main() {
 	//})
 	//router.Static("/assets", "../static/assets")
 
-	pageroutes := make(map[string]gin.HandlerFunc)
-	pageroutes["index"] = pindex
-	pageroutes["login"] = plogin
-	pageroutes["emaildetails"] = pemaildetails
-	pageroutes["formeditor"] = pformeditor
-	pageroutes["table"] = ptable
-	pageroutes["userlist"] = puserlist
-	pageroutes["profile"] = pprofile
-	pageroutes["mydetails"] = pmydetails
+	// pageroutes := make(map[string]gin.HandlerFunc)
+	// pageroutes["index"] = pindex
+	// pageroutes["login"] = plogin
+	// pageroutes["emaildetails"] = pemaildetails
+	// pageroutes["formeditor"] = pformeditor
+	// pageroutes["table"] = ptable
+	// pageroutes["userlist"] = puserlist
+	// pageroutes["profile"] = pprofile
+	// pageroutes["mydetails"] = pmydetails
 	router.GET("/", plogin)
+
+	pageroutes2 := make(map[string]control.HttpExecutor)
+	postroutes2 := make(map[string]control.HttpExecutor)
+
+	//_ = pageroutes2
+	pageroutes2["userlist"] = &control.Userlist{}
+	postroutes2["userlist"] = &control.Userlist{}
+	//pageroutes2["profile"] = pprofile
+	pageroutes2["mydetails"] = &control.Mydetails{}
+	postroutes2["mydetails"] = &control.Mydetails{}
+
 	router.POST("/:p1", func(c *gin.Context) {
 		page := c.Param("p1")
-		h := pageroutes[page]
 
-		if h == nil {
-			c.HTML(http.StatusNotFound, "404.html", gin.H{
-				"title": "",
-			})
-			//c.HTML()
+		if page == "login" {
+			plogin(c)
 			return
 		}
 
-		if page == "login" || islogin(c) {
+		if islogin(c) {
+			h := postroutes2[page]
+			if h == nil {
+				c.HTML(http.StatusNotFound, "404.html", gin.H{
+					"title": "",
+				})
+				//c.HTML()
+				return
+			}
+
 			if checkAuth(page, c) {
-				h(c)
+				pdata, e := h.Post(c, c.Request)
+				if e == nil {
+					c.HTML(http.StatusNotFound, "404.html", nil)
+				} else {
+					if pdata != nil {
+						c.JSON(http.StatusOK, pdata)
+					} else {
+						c.JSON(http.StatusExpectationFailed, nil)
+					}
+
+				}
+
 			} else {
 				c.HTML(http.StatusNotFound, "505.html", nil)
 			}
@@ -296,19 +326,35 @@ func main() {
 
 		page := c.Param("p1")
 
-		h := pageroutes[page]
-
-		if h == nil {
-			c.HTML(http.StatusNotFound, "404.html", gin.H{
-				"title": "",
-			})
-			//c.HTML()
+		if page == "login" {
+			plogin(c)
 			return
 		}
 
 		if islogin(c) {
+			h := pageroutes2[page]
+
+			if h == nil {
+				c.HTML(http.StatusNotFound, "404.html", nil)
+				//c.HTML()
+				return
+			}
 			if checkAuth(page, c) {
-				h(c)
+				pdata, e := h.Get(c)
+				if e != nil {
+					c.HTML(http.StatusNotFound, "404.html", nil)
+				} else {
+					var ldata gin.H = nil
+					if pdata != nil {
+						ldata = pdata
+					} else {
+						ldata = gin.H{}
+
+					}
+					ldata["user"] = GetCUser(c)
+					ldata["menu"] = GetMenuHtml(c)
+					c.HTML(http.StatusOK, page+".html", ldata)
+				}
 			} else {
 				c.HTML(http.StatusNotFound, "505.html", nil)
 			}
