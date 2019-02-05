@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"control"
-	"db"
 	"encoding/json"
 	"html/template"
 	"io/ioutil"
@@ -12,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"webbase/control"
+	"webbase/db"
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -67,7 +67,7 @@ func plogin(c *gin.Context) {
 		u := control.Login(c, c.Request.FormValue("mail"), c.Request.FormValue("password"))
 		if u != nil {
 			ses := sessions.Default(c)
-			uid, _ := uuid.NewV4()
+			uid := uuid.NewV4()
 			uids := uid.String()
 			cache.Add(uids, STimeOut*time.Second, u)
 			ses.Set(cockey, uids)

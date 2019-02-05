@@ -3,7 +3,7 @@ package control
 
 import (
 	"context"
-	"db"
+	"webbase/db"
 )
 
 type Mydetails struct {

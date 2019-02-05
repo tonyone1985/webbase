@@ -8,8 +8,8 @@ import (
 	"crypto/sha1"
 	"database/sql"
 	"encoding/base64"
-	"simplesql"
 	"strings"
+	"webbase/simplesql"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
