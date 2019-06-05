@@ -2,16 +2,15 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+
 	"html/template"
-	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 	"webbase/control"
 	"webbase/db"
+	"webbase/models"
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -28,8 +27,8 @@ const STimeOut = 60 * 60
 func GetAutus(c *gin.Context) []*db.AuthBean {
 	return c.Value(sauths).([]*db.AuthBean)
 }
-func GetCUser(c *gin.Context) *db.UserBean {
-	return c.Value(control.S_USER_KEY).(*db.UserBean)
+func GetCUser(c *gin.Context) *models.User {
+	return c.Value(control.S_USER_KEY).(*models.User)
 }
 func GetMenuHtml(c *gin.Context) template.HTML {
 	auths := GetAutus(c)
@@ -50,6 +49,11 @@ func GetMenuHtml(c *gin.Context) template.HTML {
 		menu += "</ul></li>"
 	}
 	return template.HTML(menu)
+}
+
+func GetMenus(c *gin.Context) []*db.AuthBean {
+	auths := GetAutus(c)
+	return auths
 }
 
 func plogin(c *gin.Context) {
@@ -148,7 +152,7 @@ func islogin(c *gin.Context) bool {
 		c.Set(control.S_USER_KEY, v.Data())
 
 		initAuthMap(c)
-		u := v.Data().(*db.UserBean)
+		u := v.Data().(*models.User)
 
 		c.Set(sauths, g_authmap[u.Role_id])
 		return true
@@ -184,53 +188,6 @@ func checkAuth(page string, c *gin.Context) bool {
 
 }
 
-type Config struct {
-	Bind   string `json:"bind"`
-	Db     string `json:"bd"`
-	Maildb string `json:""maildb`
-}
-
-func SaveDefCfg(c *Config) {
-	dir := "../conf"
-	file := "../conf/config.json"
-	_, err := os.Stat(file)
-	if err == nil || os.IsExist(err) {
-		return
-	}
-
-	_, err = os.Stat(dir)
-	if err != nil && !os.IsExist(err) {
-		os.Mkdir(dir, os.ModePerm)
-	}
-
-	d, _ := json.MarshalIndent(c, "", "\t")
-	ioutil.WriteFile(file, d, 0666)
-}
-func ReadConfg() *Config {
-	filePth := "../conf/config.json"
-	defcfg := &Config{
-		Bind:   ":8080",
-		Db:     "root:@tcp(localhost:3306)/ljx",
-		Maildb: "root:@tcp(localhost:3306)/mail",
-	}
-	f, err := os.Open(filePth)
-	if err != nil {
-		SaveDefCfg(defcfg)
-		return defcfg
-	}
-	d, e := ioutil.ReadAll(f)
-	if e != nil {
-		SaveDefCfg(defcfg)
-		return defcfg
-	}
-	rcfg := &Config{}
-	if json.Unmarshal(d, &rcfg) != nil {
-		SaveDefCfg(defcfg)
-		return defcfg
-	}
-	return rcfg
-
-}
 func main() {
 
 	config := ReadConfg()
@@ -266,15 +223,17 @@ func main() {
 	// pageroutes["mydetails"] = pmydetails
 	router.GET("/", plogin)
 
-	pageroutes2 := make(map[string]control.HttpExecutor)
-	postroutes2 := make(map[string]control.HttpExecutor)
+	routermapper := GetMapper()
 
-	//_ = pageroutes2
-	pageroutes2["userlist"] = &control.Userlist{}
-	postroutes2["userlist"] = &control.Userlist{}
-	//pageroutes2["profile"] = pprofile
-	pageroutes2["mydetails"] = &control.Mydetails{}
-	postroutes2["mydetails"] = &control.Mydetails{}
+	//	pageroutes2 := make(map[string]control.HttpExecutor)
+	//	postroutes2 := make(map[string]control.HttpExecutor)
+
+	//	//_ = pageroutes2
+	//	pageroutes2["userlist"] = &control.Userlist{}
+	//	postroutes2["userlist"] = &control.Userlist{}
+	//	//pageroutes2["profile"] = pprofile
+	//	pageroutes2["mydetails"] = &control.Mydetails{}
+	//	postroutes2["mydetails"] = &control.Mydetails{}
 
 	router.POST("/:p1", func(c *gin.Context) {
 		page := c.Param("p1")
@@ -285,7 +244,7 @@ func main() {
 		}
 
 		if islogin(c) {
-			h := postroutes2[page]
+			h := routermapper[page]
 			if h == nil {
 				c.HTML(http.StatusNotFound, "404.html", gin.H{
 					"title": "",
@@ -296,7 +255,7 @@ func main() {
 
 			if checkAuth(page, c) {
 				pdata, e := h.Post(c, c.Request)
-				if e == nil {
+				if e != nil {
 					c.HTML(http.StatusNotFound, "404.html", nil)
 				} else {
 					if pdata != nil {
@@ -332,7 +291,7 @@ func main() {
 		}
 
 		if islogin(c) {
-			h := pageroutes2[page]
+			h := routermapper[page]
 
 			if h == nil {
 				c.HTML(http.StatusNotFound, "404.html", nil)
@@ -352,7 +311,8 @@ func main() {
 
 					}
 					ldata["user"] = GetCUser(c)
-					ldata["menu"] = GetMenuHtml(c)
+					//ldata["menu"] = GetMenuHtml(c)
+					ldata["menu"] = GetMenus(c)
 					c.HTML(http.StatusOK, page+".html", ldata)
 				}
 			} else {

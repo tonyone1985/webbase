@@ -70,4 +70,4 @@ CREATE TABLE `wuser` (
 -- ----------------------------
 -- Records of wuser
 -- ----------------------------
-INSERT INTO `wuser` VALUES ('admin', 'Yhb4p1/Vuz1fIrb5lYze3j/AhsI=', 'cxx', 'cxx', '100', null);
+INSERT INTO `wuser` VALUES ('admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=', 'cxx', 'cxx', '100', null);

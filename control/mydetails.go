@@ -4,6 +4,7 @@ package control
 import (
 	"context"
 	"webbase/db"
+	"webbase/models"
 )
 
 type Mydetails struct {
@@ -14,7 +15,7 @@ func (this *Mydetails) Post(c context.Context, req Requester) (interface{}, erro
 	m := req.FormValue("method")
 	if m == "resetpwd" {
 
-		u := c.Value(S_USER_KEY).(*User)
+		u := c.Value(S_USER_KEY).(*models.User)
 		p := req.FormValue("pwd")
 		if e := db.ResetPwd(c, u.Username, p); e == nil {
 			rest.Msg = "密码重置成功"

@@ -4,6 +4,7 @@ package control
 import (
 	"context"
 	"webbase/db"
+	"webbase/models"
 )
 
 const S_USER_KEY = "user"
@@ -17,25 +18,17 @@ type HttpExecutor interface {
 	Get(c context.Context) (map[string]interface{}, error)
 }
 
-type User struct {
-	Username  string
-	Pwd       string
-	Nick_name string
-	Real_name string
-	Role_id   int
-}
-
 type BaseJson struct {
 	Suss bool
 	Msg  string
 }
 
-func Login(ctx context.Context, uname string, pwd string) *User {
+func Login(ctx context.Context, uname string, pwd string) *models.User {
 	usb := db.Login2(ctx, uname, pwd)
 	if usb == nil {
 		return nil
 	}
-	return &User{
+	return &models.User{
 		Pwd:       usb.Pwd,
 		Username:  usb.Pwd,
 		Nick_name: usb.Nick_name,
@@ -44,7 +37,7 @@ func Login(ctx context.Context, uname string, pwd string) *User {
 	}
 
 }
-func AddUser(ctx context.Context, u *User) error {
+func AddUser(ctx context.Context, u *models.User) error {
 	ub := &db.UserBean{
 		Pwd:       u.Pwd,
 		Username:  u.Pwd,

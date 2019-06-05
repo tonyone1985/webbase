@@ -16,13 +16,14 @@ import (
 )
 
 var ssql simplesql.Sql
-var ssqlm simplesql.Sql
+
+//var ssqlm simplesql.Sql
 
 func Init(db1 string, db2 string) {
 	var err error
 	//ssql, err = simplesql.New("postgres", "postgres://cxx:123456@localhost/testdb?sslmode=disable")
 	ssql, err = simplesql.New("mysql", db1)
-	ssqlm, err = simplesql.New("mysql", db2)
+	//ssqlm, err = simplesql.New("mysql", db2)
 
 	if err != nil {
 		log.Println(err)
@@ -32,7 +33,7 @@ func Init(db1 string, db2 string) {
 	ssql.RegistTable(&UserBean{}, T_User)
 	ssql.RegistTable(&AuthBean{}, T_Auth)
 	ssql.RegistTable(&RoleBean{}, T_Role)
-	ssqlm.RegistTable(&JameUserBean{}, T_JUser)
+	//ssqlm.RegistTable(&JameUserBean{}, T_JUser)
 }
 
 func init() {
@@ -72,6 +73,22 @@ type AuthBean struct {
 	Pid       int
 }
 
+type SqlTx struct {
+	simplesql.Tx
+}
+
+func Tx(ctx context.Context) (*SqlTx, error) {
+	tx, e := ssql.Tx(ctx)
+	if e != nil {
+		return nil, e
+	}
+	r := &SqlTx{tx}
+	return r, nil
+}
+func TxEnd(sqltx *SqlTx) {
+	sqltx.End()
+}
+
 func GetRole(ctx context.Context, rid int) *RoleBean {
 	r, e := ssql.SelectOne(ctx, T_Role, rid)
 	if e != nil {
@@ -99,19 +116,20 @@ func GetUser(ctx context.Context, username string, pwd string) *UserBean {
 	}
 	return nil
 }
-func GetAllJUsers(ctx context.Context) []*JameUserBean {
-	all, e := ssqlm.SelectWhere(ctx, T_JUser, "1=1")
-	if e != nil {
-		return nil
-	}
-	ulen := len(all)
 
-	res := make([]*JameUserBean, ulen)
-	for k, v := range all {
-		res[k] = v.(*JameUserBean)
-	}
-	return res
-}
+//func GetAllJUsers(ctx context.Context) []*JameUserBean {
+//	all, e := ssqlm.SelectWhere(ctx, T_JUser, "1=1")
+//	if e != nil {
+//		return nil
+//	}
+//	ulen := len(all)
+
+//	res := make([]*JameUserBean, ulen)
+//	for k, v := range all {
+//		res[k] = v.(*JameUserBean)
+//	}
+//	return res
+//}
 func AddUser(ctx context.Context, u *UserBean) error {
 	u.Pwd = Password(u.Pwd)
 
@@ -119,11 +137,11 @@ func AddUser(ctx context.Context, u *UserBean) error {
 	if e != nil {
 		return e
 	}
-	ju := &JameUserBean{}
-	ju.Username = u.Username
-	ju.PwdHash = Ptojpwd(u.Pwd)
-	ju.PwdAlgorithm = "SHA"
-	e = ssqlm.Insert(ctx, ju)
+	//	ju := &JameUserBean{}
+	//	ju.Username = u.Username
+	//	ju.PwdHash = Ptojpwd(u.Pwd)
+	//	ju.PwdAlgorithm = "SHA"
+	//	e = ssqlm.Insert(ctx, ju)
 	return e
 }
 func Editinfo(ctx context.Context, uname string, realname string) error {
@@ -178,43 +196,17 @@ func AddJUser(ctx context.Context, uname string, pwd string) error {
 func ResetPwd(ctx context.Context, uname string, pwd string) error {
 	upwd := Password(pwd)
 
-	ju := &JameUserBean{
-		Username:      strings.ToLower(uname),
-		PwdHash:       Ptojpwd(upwd),
-		PwdAlgorithm:  "SHA",
-		UseForwarding: 0,
-	}
+	//	ju := &JameUserBean{
+	//		Username:      strings.ToLower(uname),
+	//		PwdHash:       Ptojpwd(upwd),
+	//		PwdAlgorithm:  "SHA",
+	//		UseForwarding: 0,
+	//	}
 	if e := ssql.Execute(ctx, "update wuser set pwd='"+upwd+"' where username='"+strings.ToLower(uname)+"'", nil); e != nil {
 		return e
 	}
-	return ssqlm.Update(ctx, ju)
-}
-
-func GetAuths(ctx context.Context) ([]*AuthBean, error) {
-	aus, e := ssql.SelectWhere(ctx, T_Auth, "1=1 order by ordered")
-	if e != nil {
-		return nil, e
-	}
-	al := len(aus)
-	result := make([]*AuthBean, al)
-	for k, i := range aus {
-		result[k] = i.(*AuthBean)
-	}
-	return result, nil
-
-}
-
-func GetRoles(ctx context.Context) ([]*RoleBean, error) {
-	aus, e := ssql.SelectWhere(ctx, T_Role, "1=1")
-	if e != nil {
-		return nil, e
-	}
-	al := len(aus)
-	result := make([]*RoleBean, al)
-	for k, i := range aus {
-		result[k] = i.(*RoleBean)
-	}
-	return result, nil
+	return nil
+	//return ssqlm.Update(ctx, ju)
 }
 
 func Login2(ctx context.Context, uname string, pwd string) *UserBean {

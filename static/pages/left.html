@@ -57,8 +57,19 @@
 			</ul>
 		</li>
 -->
-
-{{.menu}}
+{{range $i, $v := .menu}}
+	{{if eq $v.Pid 0 }}
+		{{if ne $i 0 }}
+			</ul></li>
+		{{end}}
+				<li class="slide" >
+			<a class="side-menu__item" data-toggle="slide" href="#"><i class="side-menu__icon fa fa-table"></i><span class="side-menu__label">
+				{{$v.Auth_name.String}}</span><i class="angle fa fa-angle-right"></i></a><ul class="slide-menu">
+	{{else}}
+		<li><a href="{{$v.Auth_val.String}}" class="slide-item">{{$v.Auth_name.String}}</a></li>
+	{{end}}
+{{end}}
+</ul></li>
 		
 		<!--<li class="slide">
 			<a class="side-menu__item" data-toggle="slide" href="#"><i class="side-menu__icon fa fa-file-text"></i><span class="side-menu__label">邮件账号</span><i class="angle fa fa-angle-right"></i></a>
