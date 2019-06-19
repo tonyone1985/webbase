@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-
 	"html/template"
 	"net/http"
 	"strconv"
@@ -127,19 +126,19 @@ func orderauths(objs []*db.AuthBean) []*db.AuthBean {
 	return r
 }
 
-func initAuthMap(c context.Context) {
-	roles, _ := db.GetRoles(c)
-	auths, _ := db.GetAuths(c)
-	g_authmap = make(map[int][]*db.AuthBean)
+//func initAuthMap(c context.Context) {
+//	roles, _ := db.GetRoles(c)
+//	auths, _ := db.GetAuths(c)
+//	g_authmap = make(map[int][]*db.AuthBean)
 
-	for _, r := range roles {
-		authids := getauthids(r)
-		roleauths := getauths(authids, auths)
-		roleauthsorderd := orderauths(roleauths)
-		g_authmap[r.Role_id] = roleauthsorderd
-	}
+//	for _, r := range roles {
+//		authids := getauthids(r)
+//		roleauths := getauths(authids, auths)
+//		roleauthsorderd := orderauths(roleauths)
+//		g_authmap[r.Role_id] = roleauthsorderd
+//	}
 
-}
+//}
 func islogin(c *gin.Context) bool {
 	ses := sessions.Default(c)
 	k := ses.Get(cockey)
@@ -151,17 +150,20 @@ func islogin(c *gin.Context) bool {
 		}
 		c.Set(control.S_USER_KEY, v.Data())
 
-		initAuthMap(c)
+		//initAuthMap(c)
 		u := v.Data().(*models.User)
-
-		c.Set(sauths, g_authmap[u.Role_id])
+		auths, _ := g_auths.GetRoleAuths(u.Role_id)
+		//c.Set(sauths, g_authmap[u.Role_id])
+		c.Set(sauths, auths)
 		return true
 	}
 	return false
 }
 
 var cache *cache2go.CacheTable
-var g_authmap map[int][]*db.AuthBean
+var g_auths *control.AuthsControl
+
+//var g_authmap map[int][]*db.AuthBean
 
 func checkAuth(page string, c *gin.Context) bool {
 	if page == "login" {
@@ -192,6 +194,10 @@ func main() {
 
 	config := ReadConfg()
 	db.Init(config.Db, config.Maildb)
+
+	g_auths = &control.AuthsControl{}
+	m := context.Background()
+	g_auths.InitAuthMap(m)
 
 	router := gin.Default()
 	//router.Static("/assets", "../static/assets")

@@ -43,11 +43,11 @@
 												<label>Mail or Username</label>
 											</div>
 											<div class="passwd">
-												<input type="password" name="password">
+												<input type="password" name="password" onkeypress="return handleEnter(this, event)">
 												<label>Password</label>
 											</div>
 											<div class="submit">
-												<a class="btn btn-primary btn-block" href="javascript:document.getElementById('login').submit()">Login</a>
+												<a class="btn btn-primary btn-block" id="asbmt" href="javascript:document.getElementById('login').submit()">Login</a>
 											</div>
 											<p class="mb-2"><a href="forgot.html" >Forgot Password</a></p>
 											<p class="text-dark mb-0">Don't have account?<a href="register.html" class="text-primary ml-1">Sign UP</a></p>
@@ -100,6 +100,18 @@
 
 		<!--Scripts js-->
 		<script src="assets/js/scripts.js"></script>
+		
+		<script>
+			function handleEnter(field, event) {
+				var keyCode = event.keyCode ? event.keyCode : event.which ? event.which
+						: event.charCode;
+				if (keyCode == 13) {					
+					document.getElementById("asbmt").click();
+					return false;
+				} else
+					return true;
+			}
+		</script>
 
 	</body>
 </html>
