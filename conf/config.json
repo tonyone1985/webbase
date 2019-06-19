@@ -1,0 +1,8 @@
+
+{
+	//httplisten 
+	"bind": ":8080",
+	//db connection string
+	"bd": "root:123456@tcp(localhost:3306)/ljx",	
+	"Maildb": "root:123456@tcp(localhost:3306)/mail"
+}
